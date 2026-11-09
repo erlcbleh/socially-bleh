@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo-white.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Socially" />
+    <title>Socially</title>
+    <meta name="description" content="Socially is a community-first social platform - share posts, stories and messages inside the communities you belong to." />
+    <meta name="theme-color" content="#1A4DFF" />
+    <link rel="canonical" href="https://socially.lol/" />
+
+    <link rel="preconnect" href="https://cdn.socially.lol" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.socially.lol" />
+    <link rel="preconnect" href="https://cdn.discordapp.com" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Socially" />
+    <meta property="og:title" content="Socially" />
+    <meta property="og:description" content="Socially is a community-first social platform - share posts, stories and messages inside the communities you belong to." />
+    <meta property="og:url" content="https://socially.lol/" />
+    <meta property="og:image" content="https://socially.lol/og-image.png" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="1024" />
+    <meta property="og:image:alt" content="Socially" />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Socially" />
+    <meta name="twitter:description" content="Socially is a community-first social platform - share posts, stories and messages inside the communities you belong to." />
+    <meta name="twitter:image" content="https://socially.lol/og-image.png" />
+    <meta name="twitter:image:alt" content="Socially" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Socially",
+        "url": "https://socially.lol/",
+        "logo": "https://socially.lol/logo-blue.svg",
+        "sameAs": []
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Socially",
+        "alternateName": "Socially.lol",
+        "url": "https://socially.lol/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://socially.lol/explore?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("socially-theme");
+          if (stored !== "light") document.documentElement.classList.add("dark");
+        } catch (e) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+    <style>
+      html {
+        background-color: #ffffff;
+        color-scheme: light;
+      }
+      html.dark {
+        background-color: #000000;
+        color-scheme: dark;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

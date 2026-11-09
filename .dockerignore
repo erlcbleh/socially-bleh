@@ -1,0 +1,16 @@
+.git
+.gitignore
+node_modules
+**/node_modules
+client/dist
+**/*.log
+**/.env
+**/.env.*
+!**/.env.example
+.DS_Store
+Dockerfile
+.dockerignore
+docker-compose.yml
+assets
+client/tsconfig.tsbuildinfo
+todo

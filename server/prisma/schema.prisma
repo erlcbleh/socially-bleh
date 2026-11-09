@@ -1,0 +1,1081 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                    String    @id @db.Char(24)
+  discordId             String
+  discordUsername       String
+  username              String?   @unique
+  usernameChangedAt     DateTime?
+  previousUsernames     Json      @default("[]")
+  displayName           String    @default("")
+  bio                   String    @default("")
+  avatarUrl             String    @default("")
+  bannerUrl             String    @default("")
+  isPrivate             Boolean   @default(false)
+  hideFollowing         Boolean   @default(false)
+  hideProfileMedia      Boolean   @default(false)
+  restrictMessages      Boolean   @default(false)
+  isVerified            Boolean   @default(false)
+  verificationStatus    String    @default("none")
+  interests             String[]  @default([])
+  followersCount        Int       @default(0)
+  followingCount        Int       @default(0)
+  role                  String    @default("user")
+  badges                String[]  @default([])
+  equippedBadges        String[]  @default([])
+  tokenVersion          Int       @default(0)
+  staffSessionVersion   Int       @default(0)
+  status                String    @default("active")
+  suspendedUntil        DateTime?
+  suspendReason         String?
+  onboardingComplete    Boolean   @default(false)
+  hasSeenPromoVideo     Boolean   @default(false)
+  lastActiveAt          DateTime?
+  accountKind           String    @default("personal")
+  accountLabel          String    @default("")
+  professionalCommunityId String? @db.Char(24)
+  businessOwnerId       String?   @db.Char(24)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  professionalCommunity Community? @relation("UserProfessionalCommunity", fields: [professionalCommunityId], references: [id], onDelete: SetNull)
+  businessOwner         User?     @relation("BusinessOwner", fields: [businessOwnerId], references: [id], onDelete: Cascade)
+  ownedBusinessAccounts User[]    @relation("BusinessOwner")
+  ownedCommunities      Community[] @relation("CommunityOwner")
+
+  memberships           CommunityMembership[] @relation("MembershipUser")
+  membershipReviewedPro CommunityMembership[] @relation("MembershipProReviewer")
+  membershipProProfile  CommunityMembership[] @relation("MembershipProProfile")
+  membershipVerInvite   CommunityMembership[] @relation("MembershipVerInviter")
+  membershipVerReview   CommunityMembership[] @relation("MembershipVerReviewer")
+  membershipBannedBy    CommunityMembership[] @relation("MembershipBanner")
+
+  posts                 Post[]     @relation("PostAuthor")
+  stories               Story[]    @relation("StoryAuthor")
+  storyViews            StoryView[]
+  likes                 Like[]
+  bookmarks             Bookmark[]
+  pollVotes             PollVote[]
+  notInterested         NotInterested[]
+
+  followsOut            Follow[]   @relation("FollowFollower")
+  followsIn             Follow[]   @relation("FollowFollowing")
+  blocksOut             Block[]    @relation("BlockBlocker")
+  blocksIn              Block[]    @relation("BlockBlocked")
+  mutesOut              Mute[]     @relation("MuteMuter")
+  mutesIn               Mute[]     @relation("MuteMuted")
+
+  notificationsReceived Notification[] @relation("NotifRecipient")
+  notificationsActed    Notification[] @relation("NotifActor")
+  pushSubscriptions     PushSubscription[] @relation("UserPushSubs")
+
+  conversationsCreated  Conversation[] @relation("ConversationCreator")
+  conversationParts     ConversationParticipant[]
+  messagesSent          Message[]  @relation("MessageSender")
+  messageDeliveries     MessageDelivery[]
+  messageReads          MessageRead[]
+  messageReactions      MessageReaction[]
+
+  reportsFiled          Report[]   @relation("ReportReporter")
+  reportsReviewed       Report[]   @relation("ReportReviewer")
+  suspensions           Suspension[] @relation("SuspensionUser")
+  suspensionsIssued     Suspension[] @relation("SuspensionIssuer")
+  suspensionsLifted     Suspension[] @relation("SuspensionLifter")
+  bannedIps             BannedIp[]
+  securityFlags         SecurityFlag[]
+  ipAddresses           UserIpAddress[]
+  auditLogs             StaffAuditLog[] @relation("AuditStaff")
+  auditTargetUser       StaffAuditLog[] @relation("AuditTargetUser")
+  staffSessions         StaffSession[] @relation("StaffSessionUser")
+  staffSessionsRevoked  StaffSession[] @relation("StaffSessionRevoker")
+  staffLayouts          StaffLayout[]  @relation("StaffLayoutUser")
+  staffLayoutsCreated   StaffLayout[]  @relation("StaffLayoutCreator")
+  staffSavedSearches    StaffSavedSearch[] @relation("StaffSavedSearchUser")
+  staffNotes            StaffNote[]    @relation("StaffNoteAuthor")
+  staffAppsReviewed     StaffApplication[]
+  verificationApps      VerificationApplication[] @relation("VerAppUser")
+  verificationAppsReviewed VerificationApplication[] @relation("VerAppReviewer")
+  copyrightReviewed     CopyrightRequest[]
+  analyticsAsTarget     AnalyticsEvent[] @relation("AnalyticsTarget")
+  analyticsAsViewer     AnalyticsEvent[] @relation("AnalyticsViewer")
+  pendingUploads        PendingUpload[]
+  typingStatuses        TypingStatus[]
+  favoriteGifs          FavoriteGif[]
+  bannedDiscordIdsIssued BannedDiscordId[]
+  businessApplications   BusinessApplication[] @relation("BizAppApplicant")
+  businessAppsReviewed   BusinessApplication[] @relation("BizAppReviewer")
+  businessAppAccounts    BusinessApplication[] @relation("BizAppBusinessUser")
+  businessCollaborations BusinessCollaborator[] @relation("BizCollabUser")
+  businessTeamMembers    BusinessCollaborator[] @relation("BizCollabBusiness")
+
+  emailClaimedConversations EmailConversation[] @relation("EmailClaimedBy")
+  emailDrafts            EmailDraft[] @relation("EmailDraftAuthor")
+  internalNotes          InternalNote[] @relation("InternalNoteAuthor")
+  emailAuditLogs         EmailAuditLog[] @relation("EmailAuditLogStaff")
+
+  @@index([discordId])
+  @@index([lastActiveAt])
+  @@index([avatarUrl])
+  @@index([bannerUrl])
+  @@index([businessOwnerId])
+}
+
+model BannedDiscordId {
+  id        String   @id @db.Char(24)
+  discordId String   @unique
+  reason    String   @default("")
+  bannedById String? @db.Char(24)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bannedBy  User?    @relation(fields: [bannedById], references: [id], onDelete: SetNull)
+}
+
+model Community {
+  id                              String   @id @db.Char(24)
+  name                            String
+  slug                            String   @unique
+  previousSlugs                   String[] @default([])
+  description                     String   @default("")
+  logoUrl                         String   @default("")
+  inviteCode                      String   @unique
+  joinPolicy                      String   @default("invite")
+  isGlobal                        Boolean  @default(false)
+  ownerId                         String?  @db.Char(24)
+  memberCount                     Int      @default(1)
+  postCount                       Int      @default(0)
+  verificationFollowerThreshold   Int      @default(1000)
+  verificationApplicationsOnly    Boolean  @default(true)
+  discordWebhookUrl               String?
+  discordWebhookChannelId         String?
+  discordWebhookChannelName       String?
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @updatedAt
+
+  owner                           User?    @relation("CommunityOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  professionalUsers               User[]   @relation("UserProfessionalCommunity")
+  memberships                     CommunityMembership[]
+  posts                           Post[]
+  stories                         Story[]
+  likes                           Like[]
+  bookmarks                       Bookmark[]
+  pollVotes                       PollVote[]
+  notInterested                   NotInterested[]
+  notifications                   Notification[]
+  conversations                   Conversation[]
+  reports                         Report[]
+  auditLogs                       StaffAuditLog[]
+  analyticsEvents                 AnalyticsEvent[]
+
+  @@index([joinPolicy, memberCount(sort: Desc)])
+  @@index([logoUrl])
+}
+
+model CommunityMembership {
+  id                      String    @id @db.Char(24)
+  communityId             String    @db.Char(24)
+  userId                  String    @db.Char(24)
+  role                    String    @default("member")
+  status                  String    @default("active")
+  professionalCategory    String?
+  professionalReason      String?
+  professionalStatus      String    @default("none")
+  professionalReviewedById String?  @db.Char(24)
+  professionalReviewedAt  DateTime?
+  professionalProfileUserId String? @db.Char(24)
+  verificationStatus      String    @default("none")
+  verificationReason      String?
+  verificationInvitedById String?   @db.Char(24)
+  verificationReviewedById String?  @db.Char(24)
+  verificationReviewedAt  DateTime?
+  postsCount              Int       @default(0)
+  pinnedPostId            String?   @db.Char(24)
+  bannedReason            String?
+  bannedById              String?   @db.Char(24)
+  bannedUntil             DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  community               Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user                    User      @relation("MembershipUser", fields: [userId], references: [id], onDelete: Cascade)
+  professionalReviewedBy  User?     @relation("MembershipProReviewer", fields: [professionalReviewedById], references: [id], onDelete: SetNull)
+  professionalProfileUser User?     @relation("MembershipProProfile", fields: [professionalProfileUserId], references: [id], onDelete: SetNull)
+  verificationInvitedBy   User?     @relation("MembershipVerInviter", fields: [verificationInvitedById], references: [id], onDelete: SetNull)
+  verificationReviewedBy  User?     @relation("MembershipVerReviewer", fields: [verificationReviewedById], references: [id], onDelete: SetNull)
+  bannedBy                User?     @relation("MembershipBanner", fields: [bannedById], references: [id], onDelete: SetNull)
+  pinnedPost              Post?     @relation("MembershipPinnedPost", fields: [pinnedPostId], references: [id], onDelete: SetNull)
+
+  @@unique([communityId, userId])
+  @@index([communityId, status])
+  @@index([userId, status])
+  @@index([communityId, professionalStatus, updatedAt])
+  @@index([communityId, verificationStatus, updatedAt])
+}
+
+model Post {
+  id                   String    @id @db.Char(24)
+  authorId             String    @db.Char(24)
+  communityId          String    @db.Char(24)
+  shortId              String?   @unique
+  content              String    @default("")
+  gifUrl               String?
+  mediaUrl             String?
+  mediaType            String?
+  poll                 Json?
+  parentPostId         String?   @db.Char(24)
+  quotedPostId         String?   @db.Char(24)
+  repostOfId           String?   @db.Char(24)
+  likesCount           Int       @default(0)
+  repostsCount         Int       @default(0)
+  commentsCount        Int       @default(0)
+  impressionsCount     Int       @default(0)
+  deleted              Boolean   @default(false)
+  editedAt             DateTime?
+  moderationStatus     String    @default("pending")
+  moderationAttempts   Int       @default(0)
+  moderationTextClear  Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  author               User      @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  community            Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  parentPost           Post?     @relation("PostComments", fields: [parentPostId], references: [id], onDelete: SetNull)
+  comments             Post[]    @relation("PostComments")
+  quotedPost           Post?     @relation("PostQuotes", fields: [quotedPostId], references: [id], onDelete: SetNull)
+  quotedBy             Post[]    @relation("PostQuotes")
+  repostOf             Post?     @relation("PostReposts", fields: [repostOfId], references: [id], onDelete: SetNull)
+  reposts              Post[]    @relation("PostReposts")
+
+  likes                Like[]
+  bookmarks            Bookmark[]
+  pollVotes            PollVote[]
+  notInterested        NotInterested[]
+  notifications        Notification[]
+  sharedInMessages     Message[] @relation("MessageSharedPost")
+  analyticsEvents      AnalyticsEvent[]
+  pinnedByMemberships  CommunityMembership[] @relation("MembershipPinnedPost")
+
+  @@index([authorId, createdAt(sort: Desc)])
+  @@index([parentPostId, deleted, createdAt])
+  @@index([moderationStatus, deleted, createdAt])
+  @@index([communityId, createdAt(sort: Desc)])
+  @@index([mediaUrl])
+}
+
+model Story {
+  id          String   @id @db.Char(24)
+  authorId    String   @db.Char(24)
+  communityId String   @db.Char(24)
+  mediaUrl    String
+  mediaType   String
+  caption     String   @default("")
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author      User     @relation("StoryAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  views       StoryView[]
+  sharedInMessages Message[] @relation("MessageSharedStory")
+
+  @@index([authorId, createdAt])
+  @@index([communityId, createdAt])
+  @@index([communityId, authorId, expiresAt])
+  @@index([expiresAt])
+  @@index([mediaUrl])
+}
+
+model StoryView {
+  id        String   @id @db.Char(24)
+  storyId   String   @db.Char(24)
+  viewerId  String   @db.Char(24)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewer    User     @relation(fields: [viewerId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, viewerId])
+  @@index([expiresAt])
+}
+
+model Conversation {
+  id              String    @id @db.Char(24)
+  communityId     String?   @db.Char(24)
+  lastMessageText String    @default("")
+  lastMessageAt   DateTime?
+  isGroup         Boolean   @default(false)
+  name            String    @default("")
+  iconUrl         String    @default("")
+  createdById     String?   @db.Char(24)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  community       Community? @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  createdBy       User?      @relation("ConversationCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  participants    ConversationParticipant[]
+  messages        Message[]
+  typingStatuses   TypingStatus[]
+
+  @@index([communityId, lastMessageAt(sort: Desc)])
+  @@index([lastMessageAt(sort: Desc)])
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String       @db.Char(24)
+  userId         String       @db.Char(24)
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id              String    @id @db.Char(24)
+  conversationId  String    @db.Char(24)
+  senderId        String    @db.Char(24)
+  content         String    @default("")
+  sharedPostId    String?   @db.Char(24)
+  sharedStoryId   String?   @db.Char(24)
+  mediaUrl        String?
+  gifUrl          String?
+  editedAt        DateTime?
+  moderationState String    @default("clear")
+  moderationReason String?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender          User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  sharedPost      Post?        @relation("MessageSharedPost", fields: [sharedPostId], references: [id], onDelete: SetNull)
+  sharedStory     Story?       @relation("MessageSharedStory", fields: [sharedStoryId], references: [id], onDelete: SetNull)
+  deliveries      MessageDelivery[]
+  reads           MessageRead[]
+  reactions       MessageReaction[]
+
+  @@index([conversationId, createdAt(sort: Desc)])
+  @@index([senderId])
+  @@index([mediaUrl])
+  @@index([moderationState, createdAt])
+}
+
+model MessageDelivery {
+  id        String  @id @default(cuid())
+  messageId String  @db.Char(24)
+  userId    String  @db.Char(24)
+
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([userId])
+}
+
+model MessageRead {
+  id        String  @id @default(cuid())
+  messageId String  @db.Char(24)
+  userId    String  @db.Char(24)
+
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([userId])
+}
+
+model MessageReaction {
+  id        String  @id @default(cuid())
+  messageId String  @db.Char(24)
+  userId    String  @db.Char(24)
+  emoji     String
+
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+}
+
+model Follow {
+  id          String   @id @db.Char(24)
+  followerId  String   @db.Char(24)
+  followingId String   @db.Char(24)
+  status      String   @default("accepted")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  follower    User     @relation("FollowFollower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("FollowFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+  @@index([followerId, status])
+  @@index([followingId, status, createdAt(sort: Desc)])
+}
+
+model Like {
+  id          String   @id @db.Char(24)
+  userId      String   @db.Char(24)
+  postId      String   @db.Char(24)
+  communityId String   @db.Char(24)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([communityId, userId])
+  @@index([postId])
+}
+
+model Bookmark {
+  id          String   @id @db.Char(24)
+  userId      String   @db.Char(24)
+  postId      String   @db.Char(24)
+  communityId String   @db.Char(24)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId, communityId, createdAt(sort: Desc)])
+}
+
+model Block {
+  id          String   @id @db.Char(24)
+  blockerId   String   @db.Char(24)
+  blockedId   String   @db.Char(24)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  blocker     User     @relation("BlockBlocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked     User     @relation("BlockBlocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+  @@index([blockerId, createdAt(sort: Desc)])
+}
+
+model Mute {
+  id          String   @id @db.Char(24)
+  muterId     String   @db.Char(24)
+  mutedId     String   @db.Char(24)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  muter       User     @relation("MuteMuter", fields: [muterId], references: [id], onDelete: Cascade)
+  muted       User     @relation("MuteMuted", fields: [mutedId], references: [id], onDelete: Cascade)
+
+  @@unique([muterId, mutedId])
+}
+
+model Notification {
+  id          String   @id @db.Char(24)
+  recipientId String   @db.Char(24)
+  actorId     String   @db.Char(24)
+  type        String
+  postId      String?  @db.Char(24)
+  communityId String?  @db.Char(24)
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  recipient   User     @relation("NotifRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor       User     @relation("NotifActor", fields: [actorId], references: [id], onDelete: Cascade)
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  community   Community? @relation(fields: [communityId], references: [id], onDelete: SetNull)
+
+  @@index([recipientId, createdAt(sort: Desc)])
+  @@index([recipientId, communityId, read])
+  @@index([recipientId, read, createdAt(sort: Desc)])
+}
+
+model PushSubscription {
+  id        String   @id @db.Char(24)
+  userId    String   @db.Char(24)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation("UserPushSubs", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PollVote {
+  id          String   @id @db.Char(24)
+  userId      String   @db.Char(24)
+  postId      String   @db.Char(24)
+  communityId String   @db.Char(24)
+  optionIndex Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
+
+model NotInterested {
+  id          String   @id @db.Char(24)
+  userId      String   @db.Char(24)
+  postId      String   @db.Char(24)
+  communityId String   @db.Char(24)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([communityId, userId])
+}
+
+model Report {
+  id              String    @id @db.Char(24)
+  reporterId      String?   @db.Char(24)
+  source          String    @default("user")
+  communityId     String    @db.Char(24)
+  targetType      String
+  targetId        String    @db.Char(24)
+  contentSnapshot String?
+  snapshot        Json?
+  reason          String
+  details         String    @default("")
+  status          String    @default("pending")
+  actionTaken     String    @default("")
+  staffNote       String    @default("")
+  reviewedById    String?   @db.Char(24)
+  reviewedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  reporter        User?     @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: SetNull)
+  community       Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  reviewedBy      User?     @relation("ReportReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([communityId, status, createdAt(sort: Desc)])
+  @@index([targetType, targetId])
+  @@index([reporterId])
+  @@index([status, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([status, source, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([source, status, createdAt(sort: Desc)])
+}
+
+model Suspension {
+  id         String    @id @db.Char(24)
+  userId     String    @db.Char(24)
+  issuedById String    @db.Char(24)
+  kind       String
+  reason     String
+  until      DateTime?
+  active     Boolean   @default(true)
+  liftedAt   DateTime?
+  liftedById String?   @db.Char(24)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user       User      @relation("SuspensionUser", fields: [userId], references: [id], onDelete: Cascade)
+  issuedBy   User      @relation("SuspensionIssuer", fields: [issuedById], references: [id], onDelete: Cascade)
+  liftedBy   User?     @relation("SuspensionLifter", fields: [liftedById], references: [id], onDelete: SetNull)
+
+  @@index([userId, active])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model UserIpAddress {
+  id          String   @id @db.Char(24)
+  userId      String   @db.Char(24)
+  ipHash      String
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ipHash])
+  @@index([ipHash, lastSeenAt(sort: Desc)])
+  @@index([userId, lastSeenAt(sort: Desc)])
+}
+
+model BannedIp {
+  id         String    @id @db.Char(24)
+  ipHash     String    @unique
+  reason     String    @default("")
+  bannedById String?   @db.Char(24)
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  bannedBy   User?     @relation(fields: [bannedById], references: [id], onDelete: SetNull)
+
+  @@index([expiresAt])
+}
+
+model SecurityFlag {
+  id        String   @id @db.Char(24)
+  type      String
+  ipHash    String?
+  userAgent String?
+  method    String?
+  path      String?
+  userId    String?  @db.Char(24)
+  meta      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([ipHash, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([type, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc), ipHash])
+  @@index([createdAt(sort: Desc), userId])
+  @@index([createdAt(sort: Desc), type])
+}
+
+model StaffAuditLog {
+  id           String   @id @db.Char(24)
+  staffId      String   @db.Char(24)
+  action       String
+  targetType   String
+  targetId     String?  @db.Char(24)
+  targetUserId String?  @db.Char(24)
+  targetLabel  String   @default("")
+  communityId  String?  @db.Char(24)
+  meta         Json?
+  important    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  staff        User     @relation("AuditStaff", fields: [staffId], references: [id], onDelete: Cascade)
+  targetUser   User?    @relation("AuditTargetUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  community    Community? @relation(fields: [communityId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([important, createdAt])
+  @@index([staffId, createdAt(sort: Desc)])
+  @@index([communityId, createdAt(sort: Desc)])
+  @@index([communityId, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([communityId, targetType, createdAt(sort: Desc)])
+  @@index([communityId, staffId, createdAt(sort: Desc)])
+  @@index([action(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([targetLabel(ops: raw("gin_trgm_ops"))], type: Gin)
+}
+
+model StaffSession {
+  id                String    @id @db.Char(24)
+  jti               String    @unique
+  userId            String    @db.Char(24)
+  ipHash            String    @default("")
+  userAgent         String    @default("") @db.VarChar(500)
+  lastSeenAt        DateTime  @default(now())
+  absoluteExpiresAt DateTime
+  revokedAt         DateTime?
+  revokedById       String?   @db.Char(24)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user              User      @relation("StaffSessionUser", fields: [userId], references: [id], onDelete: Cascade)
+  revokedBy         User?     @relation("StaffSessionRevoker", fields: [revokedById], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([revokedAt])
+  @@index([absoluteExpiresAt])
+  @@index([lastSeenAt(sort: Desc)])
+  @@index([revokedAt, absoluteExpiresAt, lastSeenAt(sort: Desc)])
+}
+
+model StaffLayout {
+  id            String   @id @db.Char(24)
+  userId        String?  @db.Char(24)
+  name          String
+  schemaVersion Int      @default(1)
+  layout        Json
+  isPreset      Boolean  @default(false)
+  isDefault     Boolean  @default(false)
+  shareCode     String?  @unique @db.VarChar(16)
+  createdById   String?  @db.Char(24)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User?    @relation("StaffLayoutUser", fields: [userId], references: [id], onDelete: Cascade)
+  createdBy     User?    @relation("StaffLayoutCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, name])
+  @@index([isPreset, updatedAt(sort: Desc)])
+  @@index([userId, isDefault])
+}
+
+model StaffSavedSearch {
+  id        String   @id @db.Char(24)
+  userId    String   @db.Char(24)
+  name      String
+  panelId   String
+  query     Json
+  isShared  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation("StaffSavedSearchUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId, updatedAt(sort: Desc)])
+  @@index([isShared, updatedAt(sort: Desc)])
+  @@index([userId, panelId])
+}
+
+model StaffNote {
+  id         String   @id @db.Char(24)
+  authorId   String   @db.Char(24)
+  body       String
+  targetType String?
+  targetId   String?  @db.Char(24)
+  pinned     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  author     User     @relation("StaffNoteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([authorId, createdAt(sort: Desc)])
+  @@index([targetType, targetId, createdAt(sort: Desc)])
+  @@index([pinned, createdAt(sort: Desc)])
+}
+
+model StaffApplication {
+  id                String    @id @db.Char(24)
+  discordId         String
+  discordUsername   String
+  position          String
+  department        String?
+  motivation        String
+  experience        String    @default("")
+  scenarioResponses Json      @default("[]")
+  tosAgreed         Boolean
+  status            String    @default("pending")
+  staffNote         String    @default("")
+  reviewedById      String?   @db.Char(24)
+  reviewedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  reviewedBy        User?     @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model VerificationApplication {
+  id           String    @id @db.Char(24)
+  userId       String    @db.Char(24)
+  reason       String
+  status       String    @default("pending")
+  reviewedById String?   @db.Char(24)
+  reviewedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user         User      @relation("VerAppUser", fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy   User?     @relation("VerAppReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model CopyrightRequest {
+  id                 String    @id @db.Char(24)
+  requesterName      String
+  requesterEmail     String
+  copyrightedWork    String
+  infringingUrls     String[]
+  details            String    @default("")
+  goodFaithConfirmed Boolean
+  accuracyConfirmed  Boolean
+  signature          String
+  status             String    @default("pending")
+  staffNote          String    @default("")
+  reviewedById       String?   @db.Char(24)
+  reviewedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  reviewedBy         User?     @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model AnalyticsEvent {
+  id            String   @id @db.Char(24)
+  targetUserId  String   @db.Char(24)
+  communityId   String   @db.Char(24)
+  type          String
+  postId        String?  @db.Char(24)
+  viewerId      String?  @db.Char(24)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  targetUser    User     @relation("AnalyticsTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+  community     Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  post          Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  viewer        User?    @relation("AnalyticsViewer", fields: [viewerId], references: [id], onDelete: SetNull)
+
+  @@index([targetUserId, communityId, createdAt(sort: Desc), type])
+  @@unique([targetUserId, communityId, viewerId, postId, type])
+}
+
+model PendingUpload {
+  id        String   @id @db.Char(24)
+  userId    String   @db.Char(24)
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([url])
+}
+
+model TypingStatus {
+  id             String       @id @default(cuid())
+  conversationId String       @db.Char(24)
+  userId         String       @db.Char(24)
+  at             DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([at])
+}
+
+model FavoriteGif {
+  id          String   @id @db.Char(24)
+  userId      String   @db.Char(24)
+  gifId       String
+  url         String
+  previewUrl  String
+  description String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gifId])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model BusinessApplication {
+  id             String    @id @db.Char(24)
+  applicantId    String    @db.Char(24)
+  name           String
+  bio            String    @default("")
+  logoUrl        String    @default("")
+  bannerUrl      String    @default("")
+  status         String    @default("pending")
+  staffNote      String    @default("")
+  reviewedById   String?   @db.Char(24)
+  reviewedAt     DateTime?
+  businessUserId String?   @db.Char(24)
+
+  discordInviteUrl     String    @default("")
+  discordGuildId       String?   @db.VarChar(32)
+  discordGuildName     String    @default("")
+  discordGuildIconUrl  String    @default("")
+  discordMemberCount   Int       @default(0)
+  discordPresenceCount Int       @default(0)
+  discordCheckedAt     DateTime?
+  guidelinesAcceptedAt DateTime?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  applicant      User      @relation("BizAppApplicant", fields: [applicantId], references: [id], onDelete: Cascade)
+  reviewedBy     User?     @relation("BizAppReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  businessUser   User?     @relation("BizAppBusinessUser", fields: [businessUserId], references: [id], onDelete: SetNull)
+
+  @@index([applicantId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([discordGuildId, status])
+}
+
+model DeletedBusiness {
+  id                   String    @id @db.Char(24)
+  businessUserId       String    @db.Char(24)
+  username             String
+  displayName          String    @default("")
+  bio                  String    @default("")
+  avatarUrl            String    @default("")
+  bannerUrl            String    @default("")
+
+  ownerId              String?   @db.Char(24)
+  ownerUsername        String    @default("")
+  collaborators        Json?
+
+  discordInviteUrl     String    @default("")
+  discordGuildId       String?   @db.VarChar(32)
+  discordGuildName     String    @default("")
+  discordMemberCount   Int       @default(0)
+
+  postsCount           Int       @default(0)
+  followersCount       Int       @default(0)
+  approvedAt           DateTime?
+  accountCreatedAt     DateTime?
+
+  reason               String    @default("")
+  deletedById          String?   @db.Char(24)
+  deletedByUsername    String    @default("")
+  deletedAt            DateTime  @default(now())
+
+  @@index([deletedAt(sort: Desc)])
+  @@index([username])
+  @@index([businessUserId])
+}
+
+model BusinessCollaborator {
+  id             String   @id @db.Char(24)
+  businessUserId String   @db.Char(24)
+  userId         String   @db.Char(24)
+  role           String   @default("collaborator")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  businessUser   User     @relation("BizCollabBusiness", fields: [businessUserId], references: [id], onDelete: Cascade)
+  user           User     @relation("BizCollabUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([businessUserId, userId])
+  @@index([userId])
+}
+
+model EmailConversation {
+  id              String   @id @db.Char(24)
+  subject         String
+  status          String   @default("open")
+  mailbox         String   @default("support")
+  customerEmail   String
+  claimedBy       String?  @db.Char(24)
+  claimedAt       DateTime?
+  lastMessageAt   DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  claimStaff      User?    @relation("EmailClaimedBy", fields: [claimedBy], references: [id], onDelete: SetNull)
+  emails          Email[]
+  internalNotes   InternalNote[]
+  drafts          EmailDraft[]
+  auditLogs       EmailAuditLog[]
+
+  @@index([status])
+  @@index([claimedBy])
+  @@index([updatedAt(sort: Desc)])
+  @@index([customerEmail])
+  @@index([mailbox, status])
+  @@index([mailbox, updatedAt(sort: Desc)])
+}
+
+model Email {
+  id              String   @id @db.Char(24)
+  messageId       String   @unique
+  conversationId  String   @db.Char(24)
+  direction       String
+  from            String
+  to              String[]
+  cc              String[]
+  bcc             String[]
+  subject         String
+  html            String?  @db.Text
+  text            String?  @db.Text
+  headers         Json     @default("{}")
+  read            Boolean  @default(false)
+  deliveryStatus  String   @default("delivered")
+  receivedAt      DateTime?
+  sentAt          DateTime?
+  createdAt       DateTime @default(now())
+
+  conversation    EmailConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  attachments     Attachment[]
+
+  @@index([conversationId])
+  @@index([direction])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Attachment {
+  id              String   @id @db.Char(24)
+  emailId         String   @db.Char(24)
+  filename        String
+  mimeType        String
+  size            Int
+  storagePath     String
+  createdAt       DateTime @default(now())
+
+  email           Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  @@index([emailId])
+}
+
+model EmailDraft {
+  id              String   @id @db.Char(24)
+  conversationId  String   @db.Char(24)
+  authorId        String   @db.Char(24)
+  content         String   @db.Text
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  conversation    EmailConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  author          User    @relation("EmailDraftAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, authorId])
+  @@index([conversationId])
+}
+
+model InternalNote {
+  id              String   @id @db.Char(24)
+  conversationId  String   @db.Char(24)
+  authorId        String   @db.Char(24)
+  content         String   @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  conversation    EmailConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  author          User    @relation("InternalNoteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model EmailAuditLog {
+  id              String   @id @db.Char(24)
+  conversationId  String   @db.Char(24)
+  staffId         String?  @db.Char(24)
+  action          String
+  details         Json     @default("{}")
+  createdAt       DateTime @default(now())
+
+  conversation    EmailConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  staff           User?   @relation("EmailAuditLogStaff", fields: [staffId], references: [id], onDelete: SetNull)
+
+  @@index([conversationId])
+  @@index([createdAt(sort: Desc)])
+}

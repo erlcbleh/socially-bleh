@@ -1,0 +1,8 @@
+name = "socially-email-inbound"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+WEBHOOK_URL = "https://socially.lol/api/staff/email/webhook/resend"
+

@@ -1,0 +1,328 @@
+@import "dockview/dist/styles/dockview.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Variable.ttf") format("truetype-variations"),
+    url("/fonts/Satoshi-Variable.ttf") format("truetype");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+
+  --line: rgba(255, 255, 255, 0.19);
+  --line-strong: rgba(255, 255, 255, 0.42);
+  --surface: #0a0a0a;
+
+  --accent: #ffffff;
+  --accent-fg: #000000;
+
+  --copy-ok: #ffffff;
+  --copy-fail: #ff4438;
+
+  --modal-surface: rgba(18, 18, 18, 0.62);
+  --modal-border: rgba(255, 255, 255, 0.22);
+  --modal-radius: 20px;
+  --modal-blur: 28px;
+  --modal-backdrop: rgba(0, 0, 0, 0.55);
+  --modal-backdrop-blur: 10px;
+  --modal-shadow: 0 32px 80px -16px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+
+  --field-surface: transparent;
+  --field-border: rgba(255, 255, 255, 0.13);
+  --field-border-focus: rgba(255, 255, 255, 0.4);
+  --field-fg: #ffffff;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html.dimmed {
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.28);
+  --surface: #060606;
+}
+
+html.dimmed body {
+  --tw-text-opacity: 1;
+}
+
+body {
+  font-family: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  @apply bg-black text-neutral-200 antialiased;
+}
+
+.dockview-theme-socially {
+  --dv-background-color: #000000;
+  --dv-group-view-background-color: var(--surface);
+
+  --dv-tabs-and-actions-container-background-color: transparent;
+  --dv-activegroup-visiblepanel-tab-background-color: rgba(255, 255, 255, 0.09);
+  --dv-activegroup-hiddenpanel-tab-background-color: transparent;
+  --dv-inactivegroup-visiblepanel-tab-background-color: rgba(255, 255, 255, 0.05);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: transparent;
+
+  --dv-activegroup-visiblepanel-tab-color: #ffffff;
+  --dv-activegroup-hiddenpanel-tab-color: #6b6b6b;
+  --dv-inactivegroup-visiblepanel-tab-color: #a1a1a1;
+  --dv-inactivegroup-hiddenpanel-tab-color: #5a5a5a;
+
+  --dv-tab-divider-color: transparent;
+  --dv-separator-border: transparent;
+  --dv-paneview-header-border-color: var(--line);
+  --dv-paneview-active-outline-color: var(--line-strong);
+  --dv-drag-over-background-color: rgba(255, 255, 255, 0.07);
+  --dv-drag-over-border-color: #ffffff;
+
+  --dv-sash-color: rgba(255, 255, 255, 0.16);
+  --dv-active-sash-color: rgba(255, 255, 255, 0.4);
+}
+
+.dockview-theme-socially .dv-groupview {
+  background-color: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 140ms ease;
+}
+
+.dockview-theme-socially .dv-groupview.dv-active-group {
+  border-color: var(--line-strong);
+}
+
+.dockview-theme-socially .dv-resize-container {
+  border-radius: 14px !important;
+  border: none;
+}
+
+.dockview-theme-socially .dv-tabs-and-actions-container {
+  height: 34px;
+  padding: 5px 5px 0 5px;
+  border-bottom: 1.5px solid var(--line);
+  background-color: transparent;
+}
+
+.dockview-theme-socially .dv-tab {
+  height: 24px;
+  min-width: 0;
+  padding: 0 10px;
+  margin-right: 3px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.dockview-theme-socially .dv-tab:hover {
+  background-color: rgba(255, 255, 255, 0.09);
+}
+
+.dockview-theme-socially .dv-default-tab-content {
+  font-size: 11px;
+}
+
+.dockview-theme-socially .dv-content-container {
+  background-color: var(--surface);
+}
+
+.dockview-theme-socially .dv-sash-container .dv-sash {
+  background-color: transparent;
+}
+
+.dockview-theme-socially .dv-vertical > .dv-sash-container > .dv-sash:not(.disabled)::after,
+.dockview-theme-socially .dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background-color: var(--dv-sash-color);
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.dockview-theme-socially .dv-vertical > .dv-sash-container > .dv-sash:not(.disabled)::after {
+  height: 2px;
+  width: 34px;
+}
+
+.dockview-theme-socially .dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled)::after {
+  height: 34px;
+  width: 2px;
+}
+
+.dockview-theme-socially .dv-sash:not(.disabled):hover::after,
+.dockview-theme-socially .dv-sash:not(.disabled):active::after {
+  opacity: 1;
+  background-color: var(--dv-active-sash-color);
+}
+
+.dockview-theme-socially .dv-drop-target-anchor {
+  border-radius: 14px;
+  border: 1px solid #ffffff;
+  background-color: rgba(255, 255, 255, 0.07);
+}
+
+kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+button,
+a,
+input,
+textarea,
+select,
+[role="button"] {
+  transition:
+    background-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:not(:disabled):active,
+[role="button"]:not([aria-disabled="true"]):active {
+  transform: translateY(0.5px);
+}
+
+.dockview-theme-socially .dv-groupview,
+[data-surface="card"] {
+  transition:
+    border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.55);
+  outline-offset: 1px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.34);
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.5);
+  background-clip: content-box;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.45;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px #0e0e0e inset;
+  caret-color: #ffffff;
+  transition: background-color 9999s ease-out;
+}
+
+::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+input,
+textarea {
+  caret-color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+[data-density="comfortable"] .text-\[11px\] {
+  font-size: 12px;
+}
+
+[data-density="comfortable"] .text-\[12px\] {
+  font-size: 13px;
+}
+
+[data-density="comfortable"] .text-\[13px\] {
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+[data-density="comfortable"] .text-sm {
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+[data-density="comfortable"] .text-base {
+  font-size: 16.5px;
+}
+
+[data-density="comfortable"] .px-3\.5 {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+[data-density="comfortable"] .py-2\.5 {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
+[data-density="comfortable"] .p-3 {
+  padding: 1.125rem;
+}
+
+[data-density="comfortable"] .p-4 {
+  padding: 1.5rem;
+}

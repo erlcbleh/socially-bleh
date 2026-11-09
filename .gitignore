@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+*.tsbuildinfo
+server/scripts/delete-user-data.js
+server/scripts/export-user-data.js
+VULNERABILITIES.md

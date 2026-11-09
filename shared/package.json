@@ -1,0 +1,21 @@
+{
+  "name": "@socially/shared",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    "./queryStore": "./src/queryStore.ts",
+    "./api": "./src/api.ts",
+    "./components/Modal": "./src/components/Modal.tsx",
+    "./components/ConfirmDialog": "./src/components/ConfirmDialog.tsx",
+    "./components/PromptDialog": "./src/components/PromptDialog.tsx",
+    "./components/Avatar": "./src/components/Avatar.tsx",
+    "./components/FlickerSpinner": "./src/components/FlickerSpinner.tsx",
+    "./components/CopyButton": "./src/components/CopyButton.tsx"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.4.0"
+  }
+}
